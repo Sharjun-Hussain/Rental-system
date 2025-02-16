@@ -16,6 +16,15 @@ import {
   LuUserRound,
   LuUserSearch,
 } from "react-icons/lu";
+import {
+  CiAlignBottom,
+  CiGrid32,
+  CiGrid41,
+  CiHome,
+  CiLocationArrow1,
+  CiUser,
+  CiViewList,
+} from "react-icons/ci";
 import Link from "next/link";
 import {
   ChartLine,
@@ -40,7 +49,7 @@ export const Sidebar = () => {
 
       <div className="space-y-1">
         <Option
-          Icon={FiHome}
+          Icon={CiHome}
           title="Dashboard"
           selected={selected}
           setSelected={setSelected}
@@ -48,7 +57,7 @@ export const Sidebar = () => {
           navigation="/app"
         />
         <Option
-          Icon={LayoutGrid}
+          Icon={CiGrid41}
           title="Products"
           selected={selected}
           setSelected={setSelected}
@@ -57,7 +66,7 @@ export const Sidebar = () => {
           navigation="/app/products"
         />
         <Option
-          Icon={Grid}
+          Icon={CiGrid32}
           title="Categories"
           selected={selected}
           setSelected={setSelected}
@@ -66,7 +75,7 @@ export const Sidebar = () => {
           navigation="/app/categories"
         />
         <Option
-          Icon={UsersRound}
+          Icon={CiUser}
           title="Users"
           selected={selected}
           setSelected={setSelected}
@@ -74,7 +83,7 @@ export const Sidebar = () => {
           navigation="/app/users"
         />
         <Option
-          Icon={FileText}
+          Icon={CiViewList}
           title="Invoices"
           selected={selected}
           setSelected={setSelected}
@@ -83,7 +92,7 @@ export const Sidebar = () => {
           navigation="/app/invoices"
         />
         <Option
-          Icon={Shapes}
+          Icon={CiLocationArrow1}
           title="Rentals"
           selected={selected}
           setSelected={setSelected}
@@ -92,7 +101,7 @@ export const Sidebar = () => {
           navigation="/app/rentals"
         />
         <Option
-          Icon={ChartLine}
+          Icon={CiAlignBottom}
           title="Report"
           selected={selected}
           setSelected={setSelected}
@@ -116,24 +125,24 @@ const Option = ({
   navigation,
 }) => {
   return (
-    <motion.button
-      layout
-      onClick={() => setSelected(title)}
-      className={`relative flex h-10 w-full items-center  rounded-md transition-colors 
-        ${
-          selected === title
-            ? "bg-blue-200/60 text-blue-900 dark:bg-blue-200/30 dark:text-white"
-            : "text-gray-500 dark:text-gray-400 hover:bg-blue-400/20 dark:hover:bg-blue-200/10"
-        }`}
-    >
-      <motion.div
+    <Link href={navigation}>
+      <motion.button
         layout
-        className="grid h-full w-10 place-content-center text-lg"
+        onClick={() => setSelected(title)}
+        className={`relative flex h-10 w-full items-center  rounded-md transition-colors 
+          ${
+            selected === title
+              ? "bg-blue-200/60 text-blue-900 dark:bg-blue-200/30 dark:text-white"
+              : "text-gray-500 dark:text-gray-400 hover:bg-blue-400/20 dark:hover:bg-blue-200/10"
+          }`}
       >
-        <Icon />
-      </motion.div>
-      {open && (
-        <Link href={navigation}>
+        <motion.div
+          layout
+          className="grid h-full w-10 place-content-center text-lg"
+        >
+          <Icon />
+        </motion.div>
+        {open && (
           <motion.span
             layout
             initial={{ opacity: 0, y: 12 }}
@@ -143,19 +152,19 @@ const Option = ({
           >
             {title}
           </motion.span>
-        </Link>
-      )}
-      {notifs && open && (
-        <motion.span
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.5 }}
-          className="absolute right-2  size-4 rounded bg-blue-600 dark:bg-blue-400/50 text-xs text-white"
-        >
-          {notifs}
-        </motion.span>
-      )}
-    </motion.button>
+        )}
+        {notifs && open && (
+          <motion.span
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.5 }}
+            className="absolute right-2  size-4 rounded bg-blue-600 dark:bg-blue-400/50 text-xs text-white"
+          >
+            {notifs}
+          </motion.span>
+        )}
+      </motion.button>
+    </Link>
   );
 };
 
