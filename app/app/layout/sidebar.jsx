@@ -17,6 +17,14 @@ import {
   LuUserSearch,
 } from "react-icons/lu";
 import Link from "next/link";
+import {
+  ChartLine,
+  FileText,
+  Grid,
+  LayoutGrid,
+  Shapes,
+  UsersRound,
+} from "lucide-react";
 
 export const Sidebar = () => {
   const [open, setOpen] = useState(true);
@@ -40,7 +48,7 @@ export const Sidebar = () => {
           navigation="/app"
         />
         <Option
-          Icon={LuBell}
+          Icon={LayoutGrid}
           title="Products"
           selected={selected}
           setSelected={setSelected}
@@ -49,7 +57,7 @@ export const Sidebar = () => {
           navigation="/app/products"
         />
         <Option
-          Icon={LuBell}
+          Icon={Grid}
           title="Categories"
           selected={selected}
           setSelected={setSelected}
@@ -58,7 +66,7 @@ export const Sidebar = () => {
           navigation="/app/categories"
         />
         <Option
-          Icon={LuUserSearch}
+          Icon={UsersRound}
           title="Users"
           selected={selected}
           setSelected={setSelected}
@@ -66,7 +74,7 @@ export const Sidebar = () => {
           navigation="/app/users"
         />
         <Option
-          Icon={LuBell}
+          Icon={FileText}
           title="Invoices"
           selected={selected}
           setSelected={setSelected}
@@ -75,7 +83,7 @@ export const Sidebar = () => {
           navigation="/app/invoices"
         />
         <Option
-          Icon={LuBell}
+          Icon={Shapes}
           title="Rentals"
           selected={selected}
           setSelected={setSelected}
@@ -84,7 +92,7 @@ export const Sidebar = () => {
           navigation="/app/rentals"
         />
         <Option
-          Icon={LuUserRound}
+          Icon={ChartLine}
           title="Report"
           selected={selected}
           setSelected={setSelected}
@@ -114,8 +122,8 @@ const Option = ({
       className={`relative flex h-10 w-full items-center  rounded-md transition-colors 
         ${
           selected === title
-            ? "bg-blue-200/60 text-blue-900"
-            : "text-gray-500 dark:text-gray-400 hover:bg-blue-400/20 dark:hover:bg-amber-200/20"
+            ? "bg-blue-200/60 text-blue-900 dark:bg-blue-200/30 dark:text-white"
+            : "text-gray-500 dark:text-gray-400 hover:bg-blue-400/20 dark:hover:bg-blue-200/10"
         }`}
     >
       <motion.div
@@ -142,7 +150,7 @@ const Option = ({
           initial={{ scale: 0, opacity: 0 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5 }}
-          className="absolute right-2  size-4 rounded bg-amber-300/60 text-xs text-white"
+          className="absolute right-2  size-4 rounded bg-blue-600 dark:bg-blue-400/50 text-xs text-white"
         >
           {notifs}
         </motion.span>
@@ -165,17 +173,17 @@ const TitleSection = ({ open }) => {
               transition={{ delay: 0.125 }}
             >
               <span className="block text-xs font-semibold text-gray-900 dark:text-gray-100">
-                G.M.M.S
+                ABC
               </span>
               <span className="block text-xs text-gray-500 dark:text-gray-400">
-                School System
+                Rental System
               </span>
             </motion.div>
           )}
         </div>
-        {open && (
+        {/* {open && (
           <FiChevronDown className="mr-2 text-gray-600 dark:text-gray-300" />
-        )}
+        )} */}
       </div>
     </div>
   );
@@ -185,7 +193,7 @@ const Logo = () => {
   return (
     <motion.div
       layout
-      className="grid size-10 shrink-0 place-content-center rounded-md bg-amber-600"
+      className="grid size-10 shrink-0 place-content-center rounded-md bg-blue-600"
     >
       <svg
         width="24"
