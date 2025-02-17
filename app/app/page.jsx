@@ -4,10 +4,6 @@ import React, { memo, useState } from "react";
 
 // Ensure this is correctly imported
 
-const BackgroundGradient = memo(({ className }) => {
-  return <div className={className} />;
-});
-
 const Page = () => {
   const [value, setValue] = useState(new Date());
 

@@ -1,6 +1,6 @@
 import React from "react";
 import { BackgroundGradient } from "../Components/BackgroundGradient";
-import { ProductTable } from "./ProductTable";
+import { UsersTable } from "./ProductTable";
 
 const ProductPage = () => {
   return (
@@ -13,7 +13,7 @@ const ProductPage = () => {
 
       <div className="mx-3">
         <div className="">
-          <ProductTable data={[]} />
+          <UsersTable data={[]} />
         </div>
       </div>
     </div>
