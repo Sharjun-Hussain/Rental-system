@@ -1,6 +1,7 @@
 "use client";
 import { CircleArrowDown } from "lucide-react";
 import React, { memo, useState } from "react";
+import { BackgroundGradient } from "./Components/BackgroundGradient";
 
 // Ensure this is correctly imported
 
