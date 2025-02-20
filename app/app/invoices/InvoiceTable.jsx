@@ -113,6 +113,89 @@ export function InvoiceTable({ data, width, loading, onUpdate, onDelete }) {
       accessorKey: "status",
       header: "Status",
     },
+
+    {
+      id: "actions",
+      accessorKey: "actions",
+      header: "Actions",
+      cell: ({ row }) => {
+        const user = row.original;
+        const [open, setOpen] = React.useState(false);
+
+        const [userdata, setuserdata] = React.useState(null);
+
+        const handleDelete = async () => {
+          try {
+            await axios.delete(
+              `${process.env.NEXT_PUBLIC_API_URL}/api/admin/office/${user.id}`,
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+              }
+            );
+            // onDelete(office.id);
+            // Optionally, you can call a function to refresh the table data here
+          } catch (error) {
+            console.error("Failed to delete:", error);
+          }
+          setOpen(false); // Close dialog after action
+        };
+
+        const handleUpdate = () => {
+          // Pass the entire office object to the modal
+          setOpenModal(true);
+          setuserdata(user);
+          // Set the office data that you want to update
+          // setOfficeData(office); // Create a state variable to hold the office data
+        };
+
+        return (
+          <>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setOpen(true)}>
+                  <Trash2 size={16} className="me-2" /> View
+                </DropdownMenuItem>
+
+                <DropdownMenuItem onClick={handleUpdate}>
+                  <Pencil size={16} className="me-2" />
+                  Print
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <AlertDialog open={open} onOpenChange={setOpen}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete
+                    office from the servers.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel onClick={() => setOpen(false)}>
+                    Cancel
+                  </AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDelete}>
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </>
+        );
+      },
+    },
   ];
 
   const table = useReactTable({
@@ -138,16 +221,13 @@ export function InvoiceTable({ data, width, loading, onUpdate, onDelete }) {
         <div className="flex justify-between items-center">
           <div className="flex items-center justify-between py-4">
             <Input
-              placeholder="Filter Users"
+              placeholder="Filter Invoice"
               value={table.getColumn("full_name")?.getFilterValue() ?? ""}
               onChange={(event) =>
                 table.getColumn("full_name")?.setFilterValue(event.target.value)
               }
               className="w-full"
             />
-          </div>
-          <div>
-            <Button onClick={() => setOpenModal(true)}>Add Users</Button>
           </div>
         </div>
         <div>
