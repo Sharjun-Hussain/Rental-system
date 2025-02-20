@@ -1,6 +1,7 @@
 import React from "react";
 import { BackgroundGradient } from "../Components/BackgroundGradient";
 import { InvoiceTable } from "./InvoiceTable";
+import Breadcrumbs from "../Components/Breadcrumb";
 
 const InvoicePage = () => {
   return (
