@@ -12,8 +12,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { UserInfo } from "./components/UserInfo";
 import { OrderSummarySection } from "./components/OrderSummarySection";
 import { RentalHistoryItem } from "./components/RentalHistoryItem";
-import { ProductField } from "./components/ProductField";
+import { ProductField, ProductSearchField } from "./components/ProductField";
 import { DateField } from "./components/DateField";
+import { ProductDetailsModal } from "./components/ProductDetailsModel";
 
 export const RentalDialog = ({ isOpen, onClose, onSubmit }) => {
   const [selectedUser, setSelectedUser] = useState(null);
@@ -23,6 +24,8 @@ export const RentalDialog = ({ isOpen, onClose, onSubmit }) => {
   const [selectedProducts, setSelectedProducts] = useState([
     // { id: 1, quantity: 1 },
   ]);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     startDate: null,
     endDate: null,
@@ -89,26 +92,32 @@ export const RentalDialog = ({ isOpen, onClose, onSubmit }) => {
     },
   ];
 
-  const getRentalPeriod = () => {
-    if (!formData.startDate || !formData.endDate) return 1;
-    const diffTime = Math.abs(formData.endDate - formData.startDate);
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
+  const handleProductSelect = (product) => {
+    setSelectedProduct(product);
+    setIsProductModalOpen(true);
   };
 
-  const handleAddProduct = useCallback(() => {
-    setSelectedProducts((prev) => [...prev, { id: Date.now(), quantity: 1 }]);
-  }, []);
+  const handleAddToList = (productWithDuration) => {
+    setSelectedProducts((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        productId: productWithDuration.id,
+        quantity: 1,
+        duration: productWithDuration.duration,
+        durationUnit: productWithDuration.durationUnit,
+      },
+    ]);
+  };
 
-  const handleRemoveProduct = useCallback((index) => {
-    setSelectedProducts((prev) => prev.filter((_, i) => i !== index));
-  }, []);
+  // const getRentalPeriod = () => {
+  //   if (!formData.startDate || !formData.endDate) return 1;
+  //   const diffTime = Math.abs(formData.endDate - formData.startDate);
+  //   return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
+  // };
 
-  const handleProductChange = useCallback((index, productId) => {
-    setSelectedProducts((prev) =>
-      prev.map((item, i) =>
-        i === index ? { ...item, productId: parseInt(productId) } : item
-      )
-    );
+  const handleRemoveProduct = useCallback((productId) => {
+    setSelectedProducts((prev) => prev.filter((item) => item.id !== productId));
   }, []);
 
   const handleQuantityChange = useCallback((index, quantity) => {
@@ -153,6 +162,7 @@ export const RentalDialog = ({ isOpen, onClose, onSubmit }) => {
 
         <div className="flex gap-6">
           <div className="w-3/5 space-y-6">
+            {/* Customer search section */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Customer</label>
               <div className="relative">
@@ -193,33 +203,17 @@ export const RentalDialog = ({ isOpen, onClose, onSubmit }) => {
 
             {selectedUser && <UserInfo user={selectedUser} />}
 
+            {/* New fixed product search */}
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">Products</label>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleAddProduct}
-                  className="flex items-center gap-2"
-                >
-                  <Plus className="h-4 w-4" />
-                  Add Product
-                </Button>
-              </div>
-
-              {selectedProducts.map((product, index) => (
-                <ProductField
-                  key={product.id}
-                  product={product}
-                  products={products}
-                  showRemove={index > 0}
-                  onRemove={() => handleRemoveProduct(index)}
-                  onChange={(value) => handleProductChange(index, value)}
-                />
-              ))}
+              <label className="text-sm font-medium">Add Products</label>
+              <ProductSearchField
+                products={products}
+                onProductSelect={handleProductSelect}
+              />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            {/* Date fields */}
+            {/* <div className="grid grid-cols-2 gap-4">
               <DateField
                 label="Start Date"
                 value={formData.startDate}
@@ -234,7 +228,7 @@ export const RentalDialog = ({ isOpen, onClose, onSubmit }) => {
                   setFormData((prev) => ({ ...prev, endDate: date }))
                 }
               />
-            </div>
+            </div> */}
           </div>
 
           <div className="w-2/5">
@@ -243,8 +237,8 @@ export const RentalDialog = ({ isOpen, onClose, onSubmit }) => {
                 <OrderSummarySection
                   products={products}
                   selectedProducts={selectedProducts}
-                  period={getRentalPeriod()}
                   onQuantityChange={handleQuantityChange}
+                  onRemoveProduct={handleRemoveProduct}
                 />
 
                 {selectedUser && (
@@ -263,7 +257,10 @@ export const RentalDialog = ({ isOpen, onClose, onSubmit }) => {
                   className="w-full mt-6"
                   size="lg"
                   disabled={
-                    !selectedUser || !formData.startDate || !formData.endDate
+                    !selectedUser ||
+                    !formData.startDate ||
+                    !formData.endDate ||
+                    selectedProducts.length === 0
                   }
                 >
                   Create Rental
@@ -272,6 +269,13 @@ export const RentalDialog = ({ isOpen, onClose, onSubmit }) => {
             </Card>
           </div>
         </div>
+
+        <ProductDetailsModal
+          isOpen={isProductModalOpen}
+          onClose={() => setIsProductModalOpen(false)}
+          product={selectedProduct}
+          onAddToList={handleAddToList}
+        />
       </DialogContent>
     </Dialog>
   );

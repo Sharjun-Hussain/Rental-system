@@ -42,12 +42,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import axios from "axios";
-import { ProductModel } from "./ProductModel";
+import { PricingModel } from "./PricingModel";
 
 // import AddOfficeModal from "../addbranchmodal";
 // import useMediaQuery from "@/Hooks/useMediaQuery";
 
-export function ProductTable({ data, width, loading, onUpdate, onDelete }) {
+export function PricingTable({ data, width, loading, onUpdate, onDelete }) {
   const [sorting, setSorting] = React.useState([]);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnFilters, setColumnFilters] = React.useState([]);
@@ -338,7 +338,7 @@ export function ProductTable({ data, width, loading, onUpdate, onDelete }) {
           </div>
         </div>
       </div>
-      <ProductModel
+      <PricingModel
         onUpdate={onUpdate}
         existingUser={{}}
         OpenModal={OpenModal}

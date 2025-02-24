@@ -24,7 +24,7 @@ import { toast } from "sonner";
 import { ChevronRight, ChevronLeft, ImagePlus, X } from "lucide-react";
 
 // ProductModel Component
-export const ProductModel = ({
+export const PricingModel = ({
   onUpdate,
   OpenModal,
   setOpenModal,

@@ -87,7 +87,7 @@ body {
   }
 
   .joon-card {
-    @apply flex-1 min-w-[200px]  w-full md:w-1/2 lg:w-full dark:bg-black/15 dark:border-white/20 dark:text-white hover:dark:bg-black/35 hover:bg-white/35
+    @apply flex-1 min-w-[200px]  w-full md:w-1/2 lg:w-full dark:bg-black/15 dark:border-white/20 dark:text-white  hover:bg-white/35
     bg-white/20 border-black/20 text-black p-3 rounded-lg shadow-lg backdrop-blur-md transition;
   }
 }

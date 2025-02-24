@@ -1,21 +1,9 @@
 /* eslint-disable react/prop-types */
 "use client";
 import { useState } from "react";
-import {
-  FiBarChart,
-  FiChevronDown,
-  FiChevronsRight,
-  FiHome,
-  FiTag,
-} from "react-icons/fi";
+import { FiChevronsRight } from "react-icons/fi";
 import { motion } from "framer-motion";
-import {
-  LuBell,
-  LuMessageCircle,
-  LuQrCode,
-  LuUserRound,
-  LuUserSearch,
-} from "react-icons/lu";
+
 import {
   CiAlignBottom,
   CiGrid32,
@@ -25,15 +13,9 @@ import {
   CiUser,
   CiViewList,
 } from "react-icons/ci";
+
+import { FiDollarSign } from "react-icons/fi";
 import Link from "next/link";
-import {
-  ChartLine,
-  FileText,
-  Grid,
-  LayoutGrid,
-  Shapes,
-  UsersRound,
-} from "lucide-react";
 
 export const Sidebar = () => {
   const [open, setOpen] = useState(true);
@@ -57,6 +39,15 @@ export const Sidebar = () => {
           navigation="/app"
         />
         <Option
+          Icon={CiGrid32}
+          title="Categories"
+          selected={selected}
+          setSelected={setSelected}
+          open={open}
+          notifs={3}
+          navigation="/app/categories"
+        />
+        <Option
           Icon={CiGrid41}
           title="Products"
           selected={selected}
@@ -66,14 +57,15 @@ export const Sidebar = () => {
           navigation="/app/products"
         />
         <Option
-          Icon={CiGrid32}
-          title="Categories"
+          Icon={FiDollarSign}
+          title="Pricing"
           selected={selected}
           setSelected={setSelected}
           open={open}
           notifs={3}
-          navigation="/app/categories"
+          navigation="/app/pricing"
         />
+
         <Option
           Icon={CiUser}
           title="Users"

@@ -2,6 +2,9 @@
 import { CircleArrowDown } from "lucide-react";
 import React, { memo, useState } from "react";
 import { BackgroundGradient } from "./Components/BackgroundGradient";
+import SummaryCard from "./Components/SummaryCard";
+import DashboardCharts from "./Components/DashboardCarts";
+import DashboardContent from "./Components/DahdboardContent";
 
 // Ensure this is correctly imported
 
@@ -18,6 +21,15 @@ const Page = () => {
       </div>
 
       {/* Flex container for cards and calendar */}
+      <div>
+        <div className="mx-3 mr-6">
+          <SummaryCard />
+          {/* <DashboardCharts /> */}
+        </div>
+        <div className="mr-6">
+          <DashboardContent />
+        </div>
+      </div>
     </div>
   );
 };
