@@ -12,10 +12,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export function LoginForm({ className, ...props }) {
   const [Email, setEmail] = useState("");
   const [Password, setPassword] = useState("");
+  const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,8 +30,8 @@ export function LoginForm({ className, ...props }) {
     const data = await res.json();
 
     if (res.ok) {
-      localStorage.setItem("authToken", data.token); // Store token in localStorage
-      router.push("/app"); // Redirect to dashboard
+      localStorage.setItem("authToken", data.token);
+      router.push("/app");
     } else {
       setError(data.message);
     }
