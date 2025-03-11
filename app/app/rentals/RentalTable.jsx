@@ -13,7 +13,14 @@ import {
   getPaginationRowModel,
 } from "@tanstack/react-table";
 
-import { ArrowUpDown, Pencil, Trash2, MoreHorizontal } from "lucide-react";
+import {
+  ArrowUpDown,
+  Pencil,
+  Trash2,
+  MoreHorizontal,
+  Search,
+  Plus,
+} from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
@@ -41,18 +48,49 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 import axios from "axios";
 import { RentalDialog } from "./RentalModel";
-
-// import AddOfficeModal from "../addbranchmodal";
-// import useMediaQuery from "@/Hooks/useMediaQuery";
+import { format } from "date-fns";
+import RentalReturnPage from "./RentalReturnModel";
+import RentalReturnModal from "./RentalReturnModel";
+import RecordPaymentModal from "./RecordPaymentMode";
 
 export function RentalTable({ data, width, loading, onUpdate, onDelete }) {
   const [sorting, setSorting] = React.useState([]);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnFilters, setColumnFilters] = React.useState([]);
   const [OpenModal, setOpenModal] = React.useState(false);
-  // const isMobile = useMediaQuery("(max-width: 768px)");
+  const [OpenRentalReturnModal, setOpenRentalReturnModal] =
+    React.useState(false);
+  const [openPaymentModal, setOpenPaymentModal] = React.useState(false);
+  const [selectedRental, setSelectedRental] = React.useState(null);
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "active":
+        return "bg-green-100 text-green-800 hover:bg-green-200";
+      case "completed":
+        return "bg-blue-100 text-blue-800 hover:bg-blue-200";
+      case "overdue":
+        return "bg-red-100 text-red-800 hover:bg-red-200";
+      default:
+        return "bg-gray-100 text-gray-800 hover:bg-gray-200";
+    }
+  };
+
+  const getPaymentStatusColor = (status) => {
+    switch (status) {
+      case "paid":
+        return "bg-green-100 text-green-800 hover:bg-green-200";
+      case "partial":
+        return "bg-yellow-100 text-yellow-800 hover:bg-yellow-200";
+      case "unpaid":
+        return "bg-red-100 text-red-800 hover:bg-red-200";
+      default:
+        return "bg-gray-100 text-gray-800 hover:bg-gray-200";
+    }
+  };
 
   const columns = [
     {
@@ -77,61 +115,114 @@ export function RentalTable({ data, width, loading, onUpdate, onDelete }) {
       enableSorting: false,
       enableHiding: false,
     },
-
     {
-      accessorKey: "name",
+      accessorKey: "id",
       header: ({ column }) => {
         return (
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Name
+            ID
             <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         );
       },
-      header: "Name",
-    },
-
-    {
-      accessorKey: "phone",
-      header: "Phone",
     },
     {
-      accessorKey: "address",
-      header: "Address",
+      accessorKey: "user.name",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Customer
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
     },
     {
-      accessorKey: "email",
-      header: "Email",
+      accessorKey: "products",
+      header: "Items",
+      cell: ({ row }) => {
+        const products = row.original.products;
+        return products.reduce((sum, p) => sum + p.quantity, 0);
+      },
     },
     {
-      accessorKey: "balance",
-      header: "Balance",
+      accessorKey: "startDate",
+      header: "Start Date",
+      cell: ({ row }) => {
+        return format(new Date(row.original.startDate), "MMM dd, yyyy");
+      },
     },
-
+    {
+      accessorKey: "endDate",
+      header: "End Date",
+      cell: ({ row }) => {
+        return format(new Date(row.original.endDate), "MMM dd, yyyy");
+      },
+    },
+    {
+      accessorKey: "totalAmount",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Total
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => {
+        return `$${row.original.totalAmount.toFixed(2)}`;
+      },
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => {
+        return (
+          <Badge className={getStatusColor(row.original.status)}>
+            {row.original.status}
+          </Badge>
+        );
+      },
+    },
+    {
+      accessorKey: "paymentStatus",
+      header: "Payment",
+      cell: ({ row }) => {
+        return (
+          <Badge className={getPaymentStatusColor(row.original.paymentStatus)}>
+            {row.original.paymentStatus}
+          </Badge>
+        );
+      },
+    },
     {
       id: "actions",
-      accessorKey: "actions",
       header: "Actions",
       cell: ({ row }) => {
-        const user = row.original;
+        const rental = row.original;
         const [open, setOpen] = React.useState(false);
-
-        const [userdata, setuserdata] = React.useState(null);
 
         const handleDelete = async () => {
           try {
+            // Replace with your API endpoint
             await axios.delete(
-              `${process.env.NEXT_PUBLIC_API_URL}/api/admin/office/${user.id}`,
+              `${process.env.NEXT_PUBLIC_API_URL}/api/rentals/${rental.id}`,
               {
                 headers: {
                   Authorization: `Bearer ${localStorage.getItem("token")}`,
                 },
               }
             );
-            // onDelete(office.id);
+            onDelete && onDelete(rental.id);
             // Optionally, you can call a function to refresh the table data here
           } catch (error) {
             console.error("Failed to delete:", error);
@@ -139,12 +230,19 @@ export function RentalTable({ data, width, loading, onUpdate, onDelete }) {
           setOpen(false); // Close dialog after action
         };
 
-        const handleUpdate = () => {
-          // Pass the entire office object to the modal
+        const handleUpdate = (rental) => {
+          setSelectedRental(rental);
           setOpenModal(true);
-          setuserdata(user);
-          // Set the office data that you want to update
-          // setOfficeData(office); // Create a state variable to hold the office data
+        };
+
+        const handleReturnComplete = (rental) => {
+          setOpenRentalReturnModal(true);
+          setSelectedRental(rental);
+        };
+
+        const handleRecordPayment = (rental) => {
+          setSelectedRental(rental);
+          setOpenPaymentModal(true);
         };
 
         return (
@@ -159,13 +257,24 @@ export function RentalTable({ data, width, loading, onUpdate, onDelete }) {
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setOpen(true)}>
-                  <Trash2 size={16} className="me-2" /> Delete
-                </DropdownMenuItem>
-
-                <DropdownMenuItem onClick={handleUpdate}>
+                {/* <DropdownMenuItem onClick={() => handleUpdate(rental)}>
                   <Pencil size={16} className="me-2" />
-                  Update
+                  Edit Rental
+                </DropdownMenuItem> */}
+                <DropdownMenuItem onClick={() => handleReturnComplete(rental)}>
+                  <Pencil size={16} className="me-2" />
+                  Mark as Returned
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleRecordPayment(rental)}>
+                  <Pencil size={16} className="me-2" />
+                  Record Payment
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => setOpen(true)}
+                  className="text-red-600"
+                >
+                  <Trash2 size={16} className="me-2" /> Delete
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -176,7 +285,7 @@ export function RentalTable({ data, width, loading, onUpdate, onDelete }) {
                   <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                   <AlertDialogDescription>
                     This action cannot be undone. This will permanently delete
-                    office from the servers.
+                    this rental record from the servers.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -217,17 +326,29 @@ export function RentalTable({ data, width, loading, onUpdate, onDelete }) {
       <div className="joon-card w-full">
         <div className="flex justify-between items-center">
           <div className="flex items-center justify-between py-4">
-            <Input
-              placeholder="Filter Users"
-              value={table.getColumn("full_name")?.getFilterValue() ?? ""}
-              onChange={(event) =>
-                table.getColumn("full_name")?.setFilterValue(event.target.value)
-              }
-              className="w-full"
-            />
+            <div className="relative w-72">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
+              <Input
+                placeholder="Search rentals..."
+                value={table.getColumn("user.name")?.getFilterValue() ?? ""}
+                onChange={(event) =>
+                  table
+                    .getColumn("user.name")
+                    ?.setFilterValue(event.target.value)
+                }
+                className="pl-8 w-full"
+              />
+            </div>
           </div>
           <div>
-            <Button onClick={() => setOpenModal(true)}>Add new rental</Button>
+            <Button
+              onClick={() => {
+                setSelectedRental(null);
+                setOpenModal(true);
+              }}
+            >
+              <Plus className="h-4 w-4 mr-1" /> New Rental
+            </Button>
           </div>
         </div>
         <div>
@@ -321,7 +442,7 @@ export function RentalTable({ data, width, loading, onUpdate, onDelete }) {
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
             >
-              {/* {isMobile ? "<<" : "Previous"} */}
+              Previous
             </Button>
             <span className="text-xs">
               Page {table.getState().pagination.pageIndex + 1} of{" "}
@@ -333,17 +454,33 @@ export function RentalTable({ data, width, loading, onUpdate, onDelete }) {
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
             >
-              {/* {isMobile ? ">>" : "Next"} */}
+              Next
             </Button>
           </div>
         </div>
       </div>
       <RentalDialog
         isOpen={OpenModal}
-        onClose={setOpenModal}
-        onUpdate={onUpdate}
-        OpenModal={OpenModal}
-        setOpenModal={setOpenModal}
+        onClose={() => setOpenModal(false)}
+        onSubmit={(data) => {
+          onUpdate && onUpdate(data);
+          setOpenModal(false);
+        }}
+        rentalData={selectedRental}
+      />
+
+      <RentalReturnModal
+        rental={selectedRental}
+        open={OpenRentalReturnModal}
+        onOpenChange={setOpenRentalReturnModal}
+      />
+      <RecordPaymentModal
+        rental={selectedRental}
+        open={openPaymentModal}
+        onOpenChange={setOpenPaymentModal}
+        onUpdate={(updatedRental) => {
+          onUpdate && onUpdate(updatedRental);
+        }}
       />
     </div>
   );

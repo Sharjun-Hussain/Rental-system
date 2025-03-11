@@ -42,7 +42,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import axios from "axios";
-import { PricingModel } from "./PricingModel";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { PricingModal } from "./PricingModel";
 
 // import AddOfficeModal from "../addbranchmodal";
 // import useMediaQuery from "@/Hooks/useMediaQuery";
@@ -86,29 +87,41 @@ export function PricingTable({ data, width, loading, onUpdate, onDelete }) {
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Name
+            Product Name
             <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         );
       },
-      header: "Name",
+      header: "Product Name",
+    },
+    {
+      accessorKey: "originalCost",
+      header: "Original Cost",
     },
 
     {
-      accessorKey: "phone",
-      header: "Phone",
+      accessorKey: "minuteRate",
+      header: "Minute",
     },
     {
-      accessorKey: "address",
-      header: "Address",
+      accessorKey: "hourRate",
+      header: "Hour",
     },
     {
-      accessorKey: "email",
-      header: "Email",
+      accessorKey: "dayRate",
+      header: "Day",
     },
     {
-      accessorKey: "balance",
-      header: "Balance",
+      accessorKey: "weekRate",
+      header: "Week",
+    },
+    {
+      accessorKey: "monthRate",
+      header: "Month",
+    },
+    {
+      accessorKey: "yearRate",
+      header: "Year",
     },
 
     {
@@ -116,80 +129,25 @@ export function PricingTable({ data, width, loading, onUpdate, onDelete }) {
       accessorKey: "actions",
       header: "Actions",
       cell: ({ row }) => {
-        const user = row.original;
+        const Product = row.original;
         const [open, setOpen] = React.useState(false);
 
-        const [userdata, setuserdata] = React.useState(null);
-
-        const handleDelete = async () => {
-          try {
-            await axios.delete(
-              `${process.env.NEXT_PUBLIC_API_URL}/api/admin/office/${user.id}`,
-              {
-                headers: {
-                  Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-              }
-            );
-            // onDelete(office.id);
-            // Optionally, you can call a function to refresh the table data here
-          } catch (error) {
-            console.error("Failed to delete:", error);
-          }
-          setOpen(false); // Close dialog after action
-        };
+        const [productdata, setproductdata] = React.useState(null);
 
         const handleUpdate = () => {
-          // Pass the entire office object to the modal
           setOpenModal(true);
-          setuserdata(user);
-          // Set the office data that you want to update
-          // setOfficeData(office); // Create a state variable to hold the office data
+          setproductdata(Product);
         };
 
         return (
-          <>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                  <span className="sr-only">Open menu</span>
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setOpen(true)}>
-                  <Trash2 size={16} className="me-2" /> Delete
-                </DropdownMenuItem>
-
-                <DropdownMenuItem onClick={handleUpdate}>
-                  <Pencil size={16} className="me-2" />
-                  Update
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <AlertDialog open={open} onOpenChange={setOpen}>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    office from the servers.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel onClick={() => setOpen(false)}>
-                    Cancel
-                  </AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDelete}>
-                    Delete
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" onClick={handleUpdate}>
+                Edit Pricing
+              </Button>
+            </DialogTrigger>
+            <PricingModal product={Product} />
+          </Dialog>
         );
       },
     },
@@ -218,16 +176,13 @@ export function PricingTable({ data, width, loading, onUpdate, onDelete }) {
         <div className="flex justify-between items-center">
           <div className="flex items-center justify-between py-4">
             <Input
-              placeholder="Filter Users"
-              value={table.getColumn("full_name")?.getFilterValue() ?? ""}
+              placeholder="Filter Products"
+              value={table.getColumn("name")?.getFilterValue() ?? ""}
               onChange={(event) =>
-                table.getColumn("full_name")?.setFilterValue(event.target.value)
+                table.getColumn("name")?.setFilterValue(event.target.value)
               }
               className="w-full"
             />
-          </div>
-          <div>
-            <Button onClick={() => setOpenModal(true)}>Add Product</Button>
           </div>
         </div>
         <div>
@@ -338,12 +293,6 @@ export function PricingTable({ data, width, loading, onUpdate, onDelete }) {
           </div>
         </div>
       </div>
-      <PricingModel
-        onUpdate={onUpdate}
-        existingUser={{}}
-        OpenModal={OpenModal}
-        setOpenModal={setOpenModal}
-      />
     </div>
   );
 }

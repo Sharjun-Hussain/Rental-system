@@ -36,37 +36,152 @@ const RentalPage = () => {
 
   // Sample data - replace with your actual data
 
-  const rentals = [
+  const rentalData = [
     {
       id: 1,
-      customer: "John Doe",
-      products: ["Camera Lens", "Tripod"],
-      startDate: "2025-02-17",
-      endDate: "2025-02-24",
+      user: {
+        id: 1,
+        name: "John Doe",
+        email: "john.doe@example.com",
+        phone: "+1 (555) 123-4567",
+        address: "123 Main St, Anytown, ST 12345",
+        outstandingBalance: 150.0,
+      },
+      products: [
+        {
+          id: 101,
+          productId: 1, // Professional Camera
+          quantity: 2,
+          duration: 7,
+          durationUnit: "days",
+        },
+        {
+          id: 102,
+          productId: 2, // Drone
+          quantity: 1,
+          duration: 7,
+          durationUnit: "days",
+        },
+      ],
+      startDate: new Date("2025-02-10"),
+      endDate: new Date("2025-02-17"),
+      totalAmount: 349.97,
       status: "active",
-      total: 249.99,
+      returnStatus: "pending",
+      paymentStatus: "paid",
     },
     {
       id: 2,
-      customer: "Jane Smith",
-      products: ["Drone"],
-      startDate: "2025-02-15",
-      endDate: "2025-02-18",
-      status: "pending",
-      total: 199.99,
+      user: {
+        id: 2,
+        name: "Jane Smith",
+        email: "jane.smith@example.com",
+        phone: "+1 (555) 987-6543",
+        address: "456 Oak Ave, Somewhere, ST 54321",
+        outstandingBalance: 0.0,
+      },
+      products: [
+        {
+          id: 201,
+          productId: 2, // Drone
+          quantity: 1,
+          duration: 14,
+          durationUnit: "days",
+        },
+      ],
+      startDate: new Date("2025-01-25"),
+      endDate: new Date("2025-02-08"),
+      totalAmount: 299.98,
+      status: "completed",
+      returnStatus: "returned",
+      paymentStatus: "paid",
+    },
+    {
+      id: 3,
+      user: {
+        id: 3,
+        name: "Robert Johnson",
+        email: "robert.johnson@example.com",
+        phone: "+1 (555) 444-3333",
+        address: "789 Pine St, Othertown, ST 67890",
+        outstandingBalance: 249.99,
+      },
+      products: [
+        {
+          id: 301,
+          productId: 1, // Professional Camera
+          quantity: 1,
+          duration: 30,
+          durationUnit: "days",
+        },
+      ],
+      startDate: new Date("2025-01-15"),
+      endDate: new Date("2025-02-14"),
+      totalAmount: 599.94,
+      status: "overdue",
+      returnStatus: "pending",
+      paymentStatus: "partial",
+    },
+    {
+      id: 4,
+      user: {
+        id: 1,
+        name: "John Doe",
+        email: "john.doe@example.com",
+        phone: "+1 (555) 123-4567",
+        address: "123 Main St, Anytown, ST 12345",
+        outstandingBalance: 150.0,
+      },
+      products: [
+        {
+          id: 401,
+          productId: 1, // Professional Camera
+          quantity: 1,
+          duration: 3,
+          durationUnit: "days",
+        },
+      ],
+      startDate: new Date("2025-02-01"),
+      endDate: new Date("2025-02-04"),
+      totalAmount: 99.99,
+      status: "completed",
+      returnStatus: "returned",
+      paymentStatus: "paid",
+    },
+    {
+      id: 5,
+      user: {
+        id: 4,
+        name: "Emily Wilson",
+        email: "emily.wilson@example.com",
+        phone: "+1 (555) 222-1111",
+        address: "101 Maple Dr, Newcity, ST 13579",
+        outstandingBalance: 75.5,
+      },
+      products: [
+        {
+          id: 501,
+          productId: 2, // Drone
+          quantity: 1,
+          duration: 5,
+          durationUnit: "days",
+        },
+        {
+          id: 502,
+          productId: 1, // Professional Camera
+          quantity: 1,
+          duration: 5,
+          durationUnit: "days",
+        },
+      ],
+      startDate: new Date("2025-02-20"),
+      endDate: new Date("2025-02-25"),
+      totalAmount: 249.98,
+      status: "active",
+      returnStatus: "pending",
+      paymentStatus: "unpaid",
     },
   ];
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800";
-      case "pending":
-        return "bg-yellow-100 text-yellow-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
 
   return (
     <div>
@@ -78,7 +193,7 @@ const RentalPage = () => {
 
       <div className="mx-3">
         <div className="">
-          <RentalTable data={[]} />
+          <RentalTable data={rentalData} />
         </div>
       </div>
     </div>

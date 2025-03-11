@@ -1,8 +1,46 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
+import { PricingModal } from "./PricingModel";
 import { BackgroundGradient } from "../Components/BackgroundGradient";
 import { PricingTable } from "./PricingTable";
 
-const ProductPage = () => {
+const Page = () => {
+  const [products] = useState([
+    {
+      id: 1,
+      name: "Camera Sony A7III",
+      originalCost: 2000,
+      minuteRate: 5,
+      hourRate: 25,
+      dayRate: 100,
+      weekRate: 500,
+      monthRate: 1500,
+      yearRate: 15000,
+    },
+    // Add more products as needed
+  ]);
+
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
   return (
     <div>
       <div className="relative lg:flex space-y-3 block">
@@ -13,11 +51,11 @@ const ProductPage = () => {
 
       <div className="mx-3">
         <div className="">
-          <PricingTable data={[]} />
+          <PricingTable data={products} />
         </div>
       </div>
     </div>
   );
 };
 
-export default ProductPage;
+export default Page;

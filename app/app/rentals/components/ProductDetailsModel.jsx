@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const ProductDetailsModal = ({
   isOpen,
@@ -26,6 +26,8 @@ export const ProductDetailsModal = ({
     value: 1,
     unit: "day",
   });
+
+  useEffect(() => {}, [duration]);
 
   const durationUnits = [
     { value: "minute", label: "Minutes" },
@@ -86,7 +88,9 @@ export const ProductDetailsModal = ({
               </div>
               <div className="flex justify-between">
                 <span className="text-sm">Price</span>
-                <span className="font-medium">${product.price}/day</span>
+                <span className="font-medium">
+                  ${product.price}/{duration.unit}
+                </span>
               </div>
             </div>
 
