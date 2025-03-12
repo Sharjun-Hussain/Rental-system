@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -18,12 +18,24 @@ const CategoryModel = ({
   setOpenModal,
   existingCategory,
 }) => {
-  const [name, setName] = useState(existingCategory?.name || "");
-  const [description, setDescription] = useState(
-    existingCategory?.description || ""
-  );
+  const [name, setName] = useState("");
+  const [code, setCode] = useState("");
+  const [description, setDescription] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  // Update form fields when existingCategory changes or modal opens
+  useEffect(() => {
+    if (existingCategory) {
+      setName(existingCategory.name || "");
+      setCode(existingCategory.code || "");
+      setDescription(existingCategory.description || "");
+    } else {
+      // Reset form when adding new category
+      resetForm();
+    }
+  }, [existingCategory, OpenModal]);
+
   const isEditing = !!existingCategory;
 
   const handleSubmit = async (e) => {
@@ -41,9 +53,10 @@ const CategoryModel = ({
       const categoryData = {
         name,
         description,
+        code,
       };
 
-      const url = `${process.env.NEXT_PUBLIC_API_URL}/api/categories${
+      const url = `${process.env.NEXT_PUBLIC_API_URL}/api/v1/categories${
         isEditing ? `/${existingCategory.id}` : ""
       }`;
 
@@ -51,7 +64,7 @@ const CategoryModel = ({
         method: isEditing ? "PUT" : "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
         body: JSON.stringify(categoryData),
       });
@@ -63,9 +76,15 @@ const CategoryModel = ({
           { duration: 1600, position: "top-right" }
         );
         setLoading(false);
+
+        // Pass the data to the parent component
         onUpdate(data);
+
+        // Reset form and close modal after a short delay
         resetForm();
-        setOpenModal(false);
+        setTimeout(() => {
+          setOpenModal(false);
+        }, 500);
       } else {
         throw new Error("Failed to save category");
       }
@@ -81,16 +100,14 @@ const CategoryModel = ({
 
   const resetForm = () => {
     setName("");
+    setCode("");
     setDescription("");
     setError(null);
   };
 
-  if (!OpenModal) return null;
-
   return (
     <Dialog open={OpenModal} onOpenChange={setOpenModal}>
       <DialogContent className="sm:max-w-[425px]">
-        {error && <p className="text-red-500 mb-4">{error}</p>}
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>
@@ -104,6 +121,8 @@ const CategoryModel = ({
           </DialogHeader>
 
           <div className="flex flex-col gap-4 py-4">
+            {error && <div className="text-red-500 text-sm">{error}</div>}
+
             <div>
               <Label htmlFor="name">Category Name</Label>
               <Input
@@ -111,6 +130,15 @@ const CategoryModel = ({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter category name"
+              />
+            </div>
+            <div>
+              <Label htmlFor="code">Category Code</Label>
+              <Input
+                id="code"
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                placeholder="Enter category code"
               />
             </div>
 

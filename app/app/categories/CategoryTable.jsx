@@ -44,15 +44,81 @@ import {
 import axios from "axios";
 import CategoryModel from "./CategoryModel";
 
-// import AddOfficeModal from "../addbranchmodal";
-// import useMediaQuery from "@/Hooks/useMediaQuery";
-
-export function CategoryTable({ data, width, loading, onUpdate, onDelete }) {
+export function CategoryTable({ width, loading }) {
+  const [Category, setCategory] = React.useState([]);
   const [sorting, setSorting] = React.useState([]);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnFilters, setColumnFilters] = React.useState([]);
   const [OpenModal, setOpenModal] = React.useState(false);
-  // const isMobile = useMediaQuery("(max-width: 768px)");
+  const [selectedCategory, setSelectedCategory] = React.useState(null);
+  const [error, setError] = React.useState(null);
+
+  React.useEffect(() => {
+    const controller = new AbortController();
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch("https://tnt.carte.one/api/v1/categories", {
+          signal: controller.signal,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error(`Error: ${res.status} ${res.statusText}`);
+        }
+
+        const data = await res.json();
+        setCategory(data.data || []); // Ensure it's always an array
+      } catch (error) {
+        if (error.name === "AbortError") {
+          console.log("Fetch aborted");
+        } else {
+          setError(error.message);
+          console.error("Error fetching data:", error);
+        }
+      }
+    };
+
+    fetchCategories();
+
+    return () => {
+      controller.abort(); // Cleanup: abort request when component unmounts
+    };
+  }, []);
+
+  // Handle opening modal for adding new category
+  const handleAddCategory = () => {
+    setSelectedCategory(null);
+    setOpenModal(true);
+  };
+
+  // Handle updating the categories list after add/update
+  const handleCategoryUpdate = (updatedCategory) => {
+    if (!updatedCategory) return;
+
+    if (selectedCategory) {
+      // Update existing category
+      setCategory((prevCategories) => {
+        // Ensure prevCategories is an array
+        const categoryArray = Array.isArray(prevCategories)
+          ? prevCategories
+          : [];
+        return categoryArray.map((cat) =>
+          cat.id === updatedCategory.id ? updatedCategory : cat
+        );
+      });
+    } else {
+      // Add new category
+      setCategory((prevCategories) => {
+        // Ensure prevCategories is an array
+        const categoryArray = Array.isArray(prevCategories)
+          ? prevCategories
+          : [];
+        return [updatedCategory, ...categoryArray];
+      });
+    }
+  };
 
   const columns = [
     {
@@ -91,24 +157,15 @@ export function CategoryTable({ data, width, loading, onUpdate, onDelete }) {
           </Button>
         );
       },
-      header: "Name",
     },
 
     {
-      accessorKey: "phone",
-      header: "Phone",
+      accessorKey: "code",
+      header: "Code",
     },
     {
-      accessorKey: "address",
-      header: "Address",
-    },
-    {
-      accessorKey: "email",
-      header: "Email",
-    },
-    {
-      accessorKey: "balance",
-      header: "Balance",
+      accessorKey: "description",
+      header: "Description",
     },
 
     {
@@ -116,35 +173,35 @@ export function CategoryTable({ data, width, loading, onUpdate, onDelete }) {
       accessorKey: "actions",
       header: "Actions",
       cell: ({ row }) => {
-        const user = row.original;
+        const category = row.original;
         const [open, setOpen] = React.useState(false);
-
-        const [userdata, setuserdata] = React.useState(null);
 
         const handleDelete = async () => {
           try {
             await axios.delete(
-              `${process.env.NEXT_PUBLIC_API_URL}/api/admin/office/${user.id}`,
+              `${process.env.NEXT_PUBLIC_API_URL}/api/v1/categories/${category.id}`,
               {
                 headers: {
-                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                  Authorization: `Bearer ${localStorage.getItem("authToken")}`,
                 },
               }
             );
-            // onDelete(office.id);
-            // Optionally, you can call a function to refresh the table data here
+            setCategory((prevCategories) => {
+              // Ensure prevCategories is an array
+              const categoryArray = Array.isArray(prevCategories)
+                ? prevCategories
+                : [];
+              return categoryArray.filter((cat) => cat.id !== category.id);
+            });
           } catch (error) {
             console.error("Failed to delete:", error);
           }
-          setOpen(false); // Close dialog after action
+          setOpen(false);
         };
 
         const handleUpdate = () => {
-          // Pass the entire office object to the modal
+          setSelectedCategory(category);
           setOpenModal(true);
-          setuserdata(user);
-          // Set the office data that you want to update
-          // setOfficeData(office); // Create a state variable to hold the office data
         };
 
         return (
@@ -176,7 +233,7 @@ export function CategoryTable({ data, width, loading, onUpdate, onDelete }) {
                   <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                   <AlertDialogDescription>
                     This action cannot be undone. This will permanently delete
-                    office from the servers.
+                    the category from the servers.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -196,7 +253,7 @@ export function CategoryTable({ data, width, loading, onUpdate, onDelete }) {
   ];
 
   const table = useReactTable({
-    data: data ?? [],
+    data: Category || [], // Ensure data is always an array
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -218,16 +275,16 @@ export function CategoryTable({ data, width, loading, onUpdate, onDelete }) {
         <div className="flex justify-between items-center">
           <div className="flex items-center justify-between py-4">
             <Input
-              placeholder="Filter Users"
-              value={table.getColumn("full_name")?.getFilterValue() ?? ""}
+              placeholder="Filter Category"
+              value={table.getColumn("name")?.getFilterValue() ?? ""}
               onChange={(event) =>
-                table.getColumn("full_name")?.setFilterValue(event.target.value)
+                table.getColumn("name")?.setFilterValue(event.target.value)
               }
               className="w-full"
             />
           </div>
           <div>
-            <Button onClick={() => setOpenModal(true)}>Add Category</Button>
+            <Button onClick={handleAddCategory}>Add Category</Button>
           </div>
         </div>
         <div>
@@ -321,7 +378,7 @@ export function CategoryTable({ data, width, loading, onUpdate, onDelete }) {
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
             >
-              {/* {isMobile ? "<<" : "Previous"} */}
+              Previous
             </Button>
             <span className="text-xs">
               Page {table.getState().pagination.pageIndex + 1} of{" "}
@@ -333,16 +390,18 @@ export function CategoryTable({ data, width, loading, onUpdate, onDelete }) {
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
             >
-              {/* {isMobile ? ">>" : "Next"} */}
+              Next
             </Button>
           </div>
         </div>
       </div>
+
+      {/* Category Modal - Include it here outside the table structure */}
       <CategoryModel
-        onUpdate={onUpdate}
-        existingUser={{}}
+        onUpdate={handleCategoryUpdate}
         OpenModal={OpenModal}
         setOpenModal={setOpenModal}
+        existingCategory={selectedCategory}
       />
     </div>
   );

@@ -98,7 +98,7 @@ export const Sidebar = () => {
           selected={selected}
           setSelected={setSelected}
           open={open}
-          navigation="/app/report"
+          navigation="/app/reports"
         />
       </div>
 

@@ -1,8 +1,14 @@
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import { BackgroundGradient } from "../Components/BackgroundGradient";
 import { CategoryTable } from "./CategoryTable";
 
 const UsersPage = () => {
+  const [error, setError] = useState(null);
+
+  if (error) return <p className="text-red-500">Error: {error}</p>;
+  // if (!data.length) return <p>Loading...</p>;
+
   return (
     <div>
       <div className="relative lg:flex space-y-3 block">
@@ -12,9 +18,7 @@ const UsersPage = () => {
       </div>
 
       <div className="mx-3">
-        <div className="">
-          <CategoryTable data={[]} />
-        </div>
+        <CategoryTable />
       </div>
     </div>
   );
